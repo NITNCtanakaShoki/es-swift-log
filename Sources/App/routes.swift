@@ -19,4 +19,5 @@ func routes(_ app: Application) throws {
   app.commands.use(MeasureCommand(), as: "measure")
   app.commands.use(OutputLogCommand(), as: "output-log")
   app.commands.use(DockerStatsCommand(), as: "docker-stats")
+  app.commands.use(OutputDockerCommand(), as: "output-docker")
 }

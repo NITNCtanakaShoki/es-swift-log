@@ -18,6 +18,7 @@ public func configure(_ app: Application) async throws {
     ), as: .psql)
 
   app.migrations.add(Measure.Migration())
+  app.migrations.add(DockerStat.Migration())
 
     // register routes
     try routes(app)

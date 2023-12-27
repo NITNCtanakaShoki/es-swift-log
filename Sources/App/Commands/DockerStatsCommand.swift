@@ -1,25 +1,6 @@
 import Foundation
 import Vapor
 
-struct DockerStat {
-  var name: String
-  var cpuPercent: Double
-  var memUsage: Double
-  var memUsageUnit: String
-  var memLimit: Double
-  var memLimitUnit: String
-  var memPercent: Double
-  var netIn: Double
-  var netInUnit: String
-  var netOut: Double
-  var netOutUnit: String
-  var blockIn: Double
-  var blockInUnit: String
-  var blockOut: Double
-  var blockOutUnit: String
-  var pids: Int
-}
-
 struct DockerStatsCommand: AsyncCommand {
   struct Signature: CommandSignature {}
   
@@ -27,8 +8,9 @@ struct DockerStatsCommand: AsyncCommand {
   
   func run(using context: CommandContext, signature: Signature) async throws {
     let dockerPATH = Environment.get("DOCKER_PATH")!
+    let bashPATH = Environment.get("BASH_PATH")!
     let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/bin/bash")
+    process.executableURL = URL(fileURLWithPath: bashPATH)
     process.arguments = ["-c", "\(dockerPATH) container stats --format \"{{.Name}}, {{.CPUPerc}}, {{.MemUsage}}, {{.MemPerc}}, {{.NetIO}}, {{.BlockIO}}, {{.PIDs}}\""]
     
     let pipe = Pipe()
@@ -43,7 +25,9 @@ struct DockerStatsCommand: AsyncCommand {
         if let outputString = String(data: output, encoding: .utf8) {
           outputString.split(separator: "\n").forEach { line in
             if let stat = parseDockerStat(from: String(line)) {
-              print(stat)
+              Task.detached {
+                try await stat.create(on: context.application.db)
+              }
             }
           }
         }
@@ -84,6 +68,6 @@ func parseDockerStat(from line: String) -> DockerStat? {
   
   let pids = Int(components[6].trimmingCharacters(in: .whitespaces)) ?? 0
   
-  return DockerStat(name: name, cpuPercent: cpuPercent, memUsage: memUsage, memUsageUnit: memUsageUnit, memLimit: memLimit, memLimitUnit: memLimitUnit, memPercent: memPercent, netIn: netIn, netInUnit: netInUnit, netOut: netOut, netOutUnit: netOutUnit, blockIn: blockIn, blockInUnit: blockInUnit, blockOut: blockOut, blockOutUnit: blockOutUnit, pids: pids)
+  return DockerStat(name: name, cpuPercent: cpuPercent, memUsage: memUsage, memUsageUnit: memUsageUnit, memLimit: memLimit, memLimitUnit: memLimitUnit, memPercent: memPercent, netIn: netIn, netInUnit: netInUnit, netOut: netOut, netOutUnit: netOutUnit, blockIn: blockIn, blockInUnit: blockInUnit, blockOut: blockOut, blockOutUnit: blockOutUnit, pids: pids, date: Date())
 }
 
