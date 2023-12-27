@@ -26,8 +26,6 @@ x-shared_environment: &shared_environment
   DATABASE_NAME: vapor_database
   DATABASE_USERNAME: vapor_username
   DATABASE_PASSWORD: vapor_password
-  TITLE: PAGING_1500_APP_M512_C100_DB_M128_C50
-  MAX_CHUNK: 1500
 
 services:
   app:
@@ -75,7 +73,7 @@ services:
       POSTGRES_PASSWORD: vapor_password
       POSTGRES_DB: vapor_database
     ports:
-      - '6001:5432'
+      - '6002:5432'
     deploy:
       resources:
         limits:
