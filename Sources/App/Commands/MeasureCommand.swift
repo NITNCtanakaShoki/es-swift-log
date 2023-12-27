@@ -64,6 +64,9 @@ struct MeasureCommand: AsyncCommand {
     
     @Flag(name: "paging-last-async-10000")
     var pagingLastAsync10000: Bool
+    
+    @Flag(name: "yesConfirm", short: "y")
+    var yesConfirm
   }
   
   let help = "指定されたusernameのUserを削除します。"
@@ -80,7 +83,7 @@ struct MeasureCommand: AsyncCommand {
     for kind in kinds(signature: signature) {
       context.console.print(kind.path)
     }
-    guard context.console.confirm("以上の内容で計測を開始しても良いですか？") else {
+    guard signature.yesConfirm || context.console.confirm("以上の内容で計測を開始しても良いですか？") else {
       return
     }
     
