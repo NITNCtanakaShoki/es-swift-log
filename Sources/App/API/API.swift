@@ -28,3 +28,7 @@ extension CommandContext {
     .init(app: application, baseURL: Environment.get("BASE_URL")!)
   }
 }
+
+struct ErrorResponse: Content {
+  var reason: String
+}

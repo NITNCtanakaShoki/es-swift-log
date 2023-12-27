@@ -1,6 +1,7 @@
 import Vapor
 import Fluent
 import AsyncCommandRegister
+import Foundation
 
 struct MeasureCommand: AsyncCommand {
   struct Signature: CommandSignature {
@@ -12,9 +13,6 @@ struct MeasureCommand: AsyncCommand {
     
     @Option(name: "until")
     var until: Int?
-    
-    @Option(name: "interval")
-    var interval: Int?
     
     @Flag(name: "stream")
     var stream: Bool
@@ -72,13 +70,11 @@ struct MeasureCommand: AsyncCommand {
   
   func run(using context: CommandContext, signature: Signature) async throws {
     let until = signature.until ?? 1_000_000
-    let interval = signature.interval ?? 1_000
     context.console.print("CPU: \(String(context.cpuPercent))%")
     context.console.print("Memory: \(String(context.memoryMB))MB")
     context.console.print("EnableIndex: \(String(context.enableIndex))")
     context.console.print("LoopSeconds: \(String(context.loopSeconds))")
     context.console.print("Until: \(String(until))")
-    context.console.print("Interval: \(String(interval))")
     context.console.print("username1: \(signature.username1)")
     context.console.print("username2: \(signature.username2)")
     for kind in kinds(signature: signature) {
@@ -95,12 +91,14 @@ struct MeasureCommand: AsyncCommand {
         context.console.print("[ INFO ] \(signature.username1) eventCount: \(eventCount)で計測終了しました。")
         break
       }
+      let interval = eventCount < 10000 ? 1000 : 10000
       let createEventCount = eventCount % interval == 0 ? interval : eventCount % interval
       try await context.api.createEvent(
         count: createEventCount,
         username1: signature.username1,
         username2: signature.username2
       )
+      context.console.print("[ INFO ] \(signature.username1) eventCount: \(eventCount)で\(createEventCount)件のイベントを作成しました。")
     }
   }
   
@@ -113,7 +111,9 @@ struct MeasureCommand: AsyncCommand {
     let loopSeconds = context.loopSeconds
     
     for kind in kinds(signature: signature) {
+      context.console.print("[ INFO ] イベント数: \(eventCount)で\(kind.path)の計測が開始されました。")
       let kindStart = Date()
+      var measures = [Measure]()
       while Date().timeIntervalSince(kindStart) < loopSeconds {
         let start = Date()
         let result = try await context.api.point(kind: kind, username: signature.username1)
@@ -122,7 +122,7 @@ struct MeasureCommand: AsyncCommand {
         let measure = Measure(
           cpuPercent: cpuPercent,
           memoryMB: memoryMB,
-          kind: .stream,
+          kind: kind,
           start: start,
           end: end,
           userEventCount: eventCount,
@@ -131,10 +131,10 @@ struct MeasureCommand: AsyncCommand {
           point: result.point,
           serverTime: result.time
         )
-        Task.detached {
-          try await measure.create(on: context.application.db)
-        }
+        measures.append(measure)
       }
+      try await measures.create(on: context.application.db)
+      Thread.sleep(forTimeInterval: 1)
     }
   }
   

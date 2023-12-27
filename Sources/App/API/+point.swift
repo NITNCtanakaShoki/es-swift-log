@@ -6,15 +6,18 @@ extension API {
       req.headers.contentType = .json
     }
     guard response.status == .ok else {
-      throw PointError(kind: kind, username: username)
+      let body = try? response.content.decode(ErrorResponse.self)
+      throw PointError(status: response.status, kind: kind, username: username, reason: body?.reason)
     }
     
     return try response.content.decode(PointJSON.self)
   }
   
   struct PointError: Error {
+    let status: HTTPStatus
     let kind: PointKind
     let username: String
+    let reason: String?
   }
   
   struct PointJSON: Content {

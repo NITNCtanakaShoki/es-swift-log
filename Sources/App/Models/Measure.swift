@@ -4,6 +4,7 @@ import Fluent
 final class Measure: Model {
   static let schema = "measures"
   
+  @ID
   var id: UUID?
   
   @Field(key: "cpu_percent")

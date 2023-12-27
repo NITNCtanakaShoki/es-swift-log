@@ -2,8 +2,8 @@ extension API {
   func eventCount(username: String) async throws -> Int {
     let response = try await client.get("\(baseURL)/event/count/\(username)")
     guard response.status == .ok else {
-      let body = try? response.content.decode(String.self)
-      throw UserEventCountError(username: username, body: body)
+      let body = try? response.content.decode(ErrorResponse.self)
+      throw UserEventCountError(username: username, reason: body?.reason)
     }
     return try response.content.decode(Int.self)
   }
@@ -11,18 +11,18 @@ extension API {
   func allEventCount() async throws -> Int {
     let response = try await client.get("\(baseURL)/event/count")
     guard response.status == .ok else {
-      let body = try? response.content.decode(String.self)
-      throw AllEventCountError(body: body)
+      let body = try? response.content.decode(ErrorResponse.self)
+      throw AllEventCountError(reason: body?.reason)
     }
     return try response.content.decode(Int.self)
   }
   
   struct UserEventCountError: Error {
     let username: String?
-    let body: String?
+    let reason: String?
   }
   
   struct AllEventCountError: Error {
-    let body: String?
+    let reason: String?
   }
 }
