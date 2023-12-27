@@ -113,7 +113,6 @@ struct MeasureCommand: AsyncCommand {
     for kind in kinds(signature: signature) {
       context.console.print("[ INFO ] イベント数: \(eventCount)で\(kind.path)の計測が開始されました。")
       let kindStart = Date()
-      var measures = [Measure]()
       while Date().timeIntervalSince(kindStart) < loopSeconds {
         let start = Date()
         let result = try await context.api.point(kind: kind, username: signature.username1)
@@ -131,9 +130,10 @@ struct MeasureCommand: AsyncCommand {
           point: result.point,
           serverTime: result.time
         )
-        measures.append(measure)
+        Task.detached {
+          try await measure.create(on: context.application.db)
+        }
       }
-      try await measures.create(on: context.application.db)
       Thread.sleep(forTimeInterval: 1)
     }
   }
