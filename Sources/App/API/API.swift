@@ -32,3 +32,13 @@ extension CommandContext {
 struct ErrorResponse: Content {
   var reason: String
 }
+
+extension Date {
+  var formatted: String {
+    let formatter = DateFormatter()
+    formatter.locale = .init(identifier: "ja_JP")
+    formatter.dateFormat = "yyyy-MM-dd hh:mm:ss SSS"
+  
+    return formatter.string(from: self)
+  }
+}
