@@ -94,7 +94,14 @@ struct MeasureCommand: AsyncCommand {
         context.console.print("[ INFO ] \(signature.username1) eventCount: \(eventCount)で計測終了しました。")
         break
       }
-      let interval = eventCount < 10000 ? 1000 : 10000
+      let interval = switch eventCount {
+      case 0 ..< 10_000: 1_000
+      case 10_000 ..< 100_000: 10_000
+      case 100_000 ..< 1_000_000: 100_000
+      case 1_000_000 ..< 10_000_000: 1_000_000
+      case 10_000_000 ..< 100_000_000: 10_000_000
+      default: fatalError("eventCountが想定外の数字です。\(eventCount)")
+      }
       let createEventCount = eventCount % interval == 0 ? interval : eventCount % interval
       try await context.api.createEvent(
         count: createEventCount,
