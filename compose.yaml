@@ -78,10 +78,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
+          cpus: '2.00'
           memory: 1024M
         reservations:
-          cpus: '1.00'
+          cpus: '2.00'
           memory: 1024M
   log-db:
     image: postgres:16-alpine
