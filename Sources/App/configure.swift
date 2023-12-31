@@ -19,6 +19,7 @@ public func configure(_ app: Application) async throws {
 
   app.migrations.add(Measure.Migration())
   app.migrations.add(DockerStat.Migration())
+  app.migrations.add(MeasureDBReqCountColumnMigration())
 
     // register routes
     try routes(app)

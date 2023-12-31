@@ -13,6 +13,15 @@ final class Measure: Model {
   @Field(key: "memory_mb")
   var memoryMB: Int
   
+  @Field(key: "db_cpu_percent")
+  var dbCpuPercent: Int
+  
+  @Field(key: "db_memory_mb")
+  var dbMemoryMB: Int
+  
+  @Field(key: "concurrent_req_count")
+  var concurrentReqCount: Int
+  
   @Enum(key: "way")
   var way: Way
   
@@ -45,10 +54,30 @@ final class Measure: Model {
   
   init() { }
   
-  init(id: UUID? = nil, cpuPercent: Int, memoryMB: Int, way: Way, chunk: Int? = nil, start: Date, end: Date, userEventCount: Int, allEventCount: Int, enableIndex: Bool, point: Int, serverTime: Double, createdAt: Date? = nil) {
+  init(
+    id: UUID? = nil,
+    cpuPercent: Int,
+    memoryMB: Int,
+    dbCpuPercent: Int,
+    dbMemoryMB: Int,
+    concurrentReqCount: Int,
+    way: Way,
+    chunk: Int? = nil,
+    start: Date,
+    end: Date,
+    userEventCount: Int,
+    allEventCount: Int,
+    enableIndex: Bool,
+    point: Int,
+    serverTime: Double,
+    createdAt: Date? = nil
+  ) {
     self.id = id
     self.cpuPercent = cpuPercent
     self.memoryMB = memoryMB
+    self.dbCpuPercent = dbCpuPercent
+    self.dbMemoryMB = dbMemoryMB
+    self.concurrentReqCount = concurrentReqCount
     self.way = way
     self.chunk = chunk
     self.start = start
@@ -61,10 +90,29 @@ final class Measure: Model {
     self.createdAt = createdAt
   }
   
-  init(id: UUID? = nil, cpuPercent: Int, memoryMB: Int, kind: PointKind, start: Date, end: Date, userEventCount: Int, allEventCount: Int, enableIndex: Bool, point: Int, serverTime: Double, createdAt: Date? = nil) {
+  init(
+    id: UUID? = nil,
+    cpuPercent: Int,
+    memoryMB: Int,
+    dbCpuPercent: Int,
+    dbMemoryMB: Int,
+    concurrentReqCount: Int,
+    kind: PointKind,
+    start: Date,
+    end: Date,
+    userEventCount: Int,
+    allEventCount: Int,
+    enableIndex: Bool,
+    point: Int,
+    serverTime: Double,
+    createdAt: Date? = nil
+  ) {
     self.id = id
     self.cpuPercent = cpuPercent
     self.memoryMB = memoryMB
+    self.dbCpuPercent = dbCpuPercent
+    self.dbMemoryMB = dbMemoryMB
+    self.concurrentReqCount = concurrentReqCount
     self.way = .from(kind)
     self.chunk = kind.count
     self.start = start

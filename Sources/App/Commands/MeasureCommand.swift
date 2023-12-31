@@ -75,6 +75,9 @@ struct MeasureCommand: AsyncCommand {
     let until = signature.until ?? 1_000_000
     context.console.print("CPU: \(String(context.cpuPercent))%")
     context.console.print("Memory: \(String(context.memoryMB))MB")
+    context.console.print("DB CPU: \(String(context.dbCpuPercent))MB")
+    context.console.print("DB Memory: \(String(context.dbMemoryMB))MB")
+    context.console.print("Concurrent Req Count: \(String(context.concurrentReqCount))")
     context.console.print("EnableIndex: \(String(context.enableIndex))")
     context.console.print("LoopSeconds: \(String(context.loopSeconds))")
     context.console.print("Until: \(String(until))")
@@ -117,6 +120,9 @@ struct MeasureCommand: AsyncCommand {
     let allEventCount = try await context.api.allEventCount()
     let cpuPercent = context.cpuPercent
     let memoryMB = context.memoryMB
+    let dbCpuPercent = context.dbCpuPercent
+    let dbMemoryMB = context.dbMemoryMB
+    let concurrentReqCount = context.concurrentReqCount
     let enableIndex = context.enableIndex
     let loopSeconds = context.loopSeconds
     
@@ -132,6 +138,9 @@ struct MeasureCommand: AsyncCommand {
         let measure = Measure(
           cpuPercent: cpuPercent,
           memoryMB: memoryMB,
+          dbCpuPercent: dbCpuPercent,
+          dbMemoryMB: dbMemoryMB,
+          concurrentReqCount: concurrentReqCount,
           kind: kind,
           start: start,
           end: end,
@@ -212,6 +221,18 @@ extension CommandContext {
   
   var memoryMB: Int {
     Int(Environment.get("MEMORY_MB")!)!
+  }
+  
+  var dbCpuPercent: Int {
+    Int(Environment.get("DB_CPU_PERCENT")!)!
+  }
+  
+  var dbMemoryMB: Int {
+    Int(Environment.get("DB_MEMORY_MB")!)!
+  }
+  
+  var concurrentReqCount: Int {
+    Int(Environment.get("CONCURRENT_REQ_COUNT")!)!
   }
   
   var enableIndex: Bool {
