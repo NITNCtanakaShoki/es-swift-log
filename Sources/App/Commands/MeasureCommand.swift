@@ -157,8 +157,6 @@ struct MeasureCommand: AsyncCommand {
     }
   }
   
-  private func measureUnit(using conte
-  
   private func kinds(signature: Signature) -> [PointKind] {
     var kinds = [PointKind]()
     if signature.stream {
